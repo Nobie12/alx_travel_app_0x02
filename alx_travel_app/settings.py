@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',  # For APIs
     'corsheaders',     # For CORS support
+    'drf_yasg',        # For swagger
     'listings',        # our app
 ]
 
