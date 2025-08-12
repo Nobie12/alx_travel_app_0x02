@@ -10,6 +10,7 @@ This project demonstrates how to:
 
 ## 📂 Project Structure
 
+```
 alx_travel_app_0x00/
 │
 ├── alx_travel_app/
@@ -24,7 +25,7 @@ alx_travel_app_0x00/
 │   ├── settings.py
 │   └── urls.py
 └── README.md
-
+```
 ---
 
 ## 🏗️ Models
