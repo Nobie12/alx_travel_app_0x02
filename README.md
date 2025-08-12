@@ -1,126 +1,233 @@
-# alxtravelapp
+# ALX Travel App 2
 
-A real-world **Django** application serving as the foundation for a travel listing platform.  
-This milestone focuses on setting up the initial project structure, configuring a robust database, and integrating tools for **API documentation** and **maintainable configurations**.  
-The goal is to equip developers with **industry-standard best practices** for starting and managing Django-based projects efficiently.
-
----
-
-## 🚀 About the Project
-
-`alxtravelapp` is the backend for a travel listings platform.  
-In this milestone, you will:
-
-- Set up a **scalable Django backend**.
-- Integrate **MySQL** for database management.
-- Use **Swagger** for automated API documentation.
-- Manage settings securely with **django-environ**.
-- Prepare the codebase for **future features** and **team collaboration**.
+## 📌 Objective
+This project demonstrates how to:
+- Define **database models** for a travel booking application.
+- Create **serializers** for API data representation.
+- Implement a **custom management command** to seed the database with sample data.
 
 ---
 
-## 🎯 Learning Objectives
+## 📂 Project Structure
 
-By completing this milestone, you will:
-
-### 1. Master Advanced Project Initialization
-- Bootstrap Django projects with **modular, production-ready configurations**.
-- Employ **environment variable management** for secure and scalable settings.
-
-### 2. Integrate Key Developer Tools
-- Set up and use **Swagger** (`drf-yasg`) for API documentation.
-- Implement **CORS headers** and **MySQL configurations** for robust API interactions.
-
-### 3. Collaborate Effectively Using Git
-- Structure your project for **team collaboration** with a version-controlled setup.
-
-### 4. Adopt Industry Best Practices
-- Manage dependencies, database configurations, and application structure in a maintainable way.
-
----
-
-## 📋 Requirements
-
-Before starting, make sure you have:
-
-- **Django** and **Django REST Framework** knowledge.
-- Understanding of **MySQL** and database management.
-- Familiarity with **Git** and version control.
-- A basic grasp of **django-environ** for environment variables.
+alx_travel_app_0x00/
+│
+├── alx_travel_app/
+│   ├── listings/
+│   │   ├── models.py           # Listing, Booking, Review models
+│   │   ├── serializers.py      # ListingSerializer, BookingSerializer, ReviewSerializer
+│   │   ├── management/
+│   │   │   ├── commands/
+│   │   │   │   └── seed.py     # Seeder command to populate sample data
+│   │   ├── __init__.py
+│   │   └── ...
+│   ├── settings.py
+│   └── urls.py
+└── README.md
 
 ---
 
-## 🛠️ Key Highlights
+## 🏗️ Models
 
-### **1. Project Initialization**
-- Create a Django project named `alxtravelapp`.
-- Add an app named `listings` to encapsulate core functionalities.
+### 1. **Listing**
+Represents a travel listing.
 
-### **2. Dependency Management**
-Installed packages include:
-- `django` – Core framework.
-- `djangorestframework` – REST API support.
-- `django-cors-headers` – Cross-Origin Resource Sharing setup.
-- `drf-yasg` – Swagger API documentation.
-- `celery` + `rabbitmq` – Future background task support.
+- `title`: `CharField`
+- `description`: `TextField`
+- `location`: `CharField`
+- `price_per_night`: `DecimalField`
+- `available`: `BooleanField`
+- `created_at`: `DateTimeField` (auto_now_add=True)
+- `updated_at`: `DateTimeField` (auto_now=True)
 
-### **3. Settings Configuration**
-- **django-environ** to securely handle environment variables.
-- **MySQL** as the primary database in `settings.py`.
-- REST Framework + CORS headers configured for API support.
+### 2. **Booking**
+Represents a booking made by a guest.
 
-### **4. Swagger Integration**
-- Automatic API documentation via Swagger UI.
-- Accessible at: `http://localhost:8000/swagger/`
+- `listing`: ForeignKey → `Listing`
+- `guest_name`: `CharField`
+- `check_in`: `DateField`
+- `check_out`: `DateField`
+- `guests`: `IntegerField`
+- `created_at`: `DateTimeField` (auto_now_add=True)
 
-### **5. Version Control**
-- Git repository initialized and structured for collaboration.
-- Code pushed to a public GitHub repo named **`alxtravelapp`**.
+### 3. **Review**
+Represents a review for a listing.
+
+- `listing`: ForeignKey → `Listing`
+- `reviewer_name`: `CharField`
+- `rating`: `IntegerField` (1 to 5)
+- `comment`: `TextField`
+- `created_at`: `DateTimeField` (auto_now_add=True)
 
 ---
 
-## 📦 Installation & Setup
+## 🛠️ Serializers
 
-1️⃣ **Clone the repository**
+Located in `listings/serializers.py`:
+
+- **`ListingSerializer`** — Converts `Listing` model instances to JSON and validates input data.
+- **`BookingSerializer`** — Serializes `Booking` instances; includes nested listing info and handles write-only foreign key fields.
+- **`ReviewSerializer`** — Serializes `Review` instances with nested listing info and reviewer details.
+
+---
+
+## 🌱 Seeder Command
+
+The seeder script (`seed.py`) in `listings/management/commands/`:
+
+- Automatically populates the database with sample listings.
+- Uses Django's `BaseCommand` class.
+- Generates randomized titles, descriptions, prices, availability, etc.
+- Helps testing and development by quickly seeding data.
+
+---
+
+**Command:**
 ```bash
-git clone https://github.com/<your-username>/alxtravelapp.git
-cd alxtravelapp
+python manage.py seed
 ```
 
-2️⃣ **Create a virtual environment**
+## 🌱 Seeder Command
+
+The **seeder** script (`seed.py`) is designed to generate random sample data automatically, making testing and development easier by populating your database with realistic-looking entries.
+
+---
+
+### How It Works, Step-by-Step
+
+1. **Location & Setup**  
+   The seeder command lives inside your app folder under:  
+   `listings/management/commands/seed.py`  
+   - This folder structure lets Django recognize `seed` as a custom management command.  
+   - `management/commands` is a special Django pattern to add your own CLI commands that you can run with `python manage.py <command_name>`.
+
+2. **Command Class**  
+   Inside `seed.py`, you create a class inheriting from `BaseCommand` (from `django.core.management.base`):  
+   ```python
+   class Command(BaseCommand):
+       help = 'Seed the database with sample listings'
+    ```
+> help is a description shown when you run python manage.py help seed.
+
+3. **handle() Method**  
+   This method runs when you execute python manage.py seed:
+   ```python
+   def handle(self, *args, **kwargs):
+    # Your seeding logic here
+    ```
+
+4. **Sample Data Generation**
+
+- You define lists of sample titles, descriptions, locations, etc.
+
+- Use Python’s random.choice() or random.uniform() to pick random values from those lists or generate random numbers.
+
+- For example, generate unique titles by appending a number: "Beach House #1", "Beach House #2", etc.
+
+5. **Create Database Entries**
+
+- Use Django’s ORM .objects.create() method to insert records into your database.
+
+- Example:
+
+```python
+Listing.objects.create(
+    title=chosen_title,
+    description=chosen_description,
+    location=chosen_location,
+    price_per_night=chosen_price,
+    available=chosen_availability,
+)
+```
+
+- Each iteration creates a new Listing row with randomized attributes.
+
+6. **Console Feedback**
+
+- Use self.stdout.write() to print progress messages like:
+"Created listing: Beach House #1"
+
+- Helps you track the seeder’s progress and success.
+
+## Running the Seeder
+
+- Once your seeder is implemented, use this command:
+
+```bash
+python manage.py seed
+```
+
+- You will see output like:
+
+```yaml
+Seeding data...
+Created listing: Beach House #1
+Created listing: Mountain Cabin #2
+...
+Seeding completed successfully.
+```
+
+## ▶️ How to Run the Project
+
+1. **Clone Repository**
+
+```bash
+git clone https://github.com/<your-username>/alx_travel_app_0x00.git
+cd alx_travel_app_0x00
+```
+
+2. **Create Virtual Environment**
+
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+source venv/bin/activate   # On Windows: venv\Scripts\activate
 ```
 
-3️⃣ **Install dependencies**
+3. **Install Requirements**
+
 ```bash
 pip install -r requirements.txt
 ```
 
-4️⃣ **Set up .env file**
-```bash
-DEBUG=True
-SECRET_KEY=your-secret-key
-DATABASE_URL=mysql://user:password@localhost:3306/db_name
-ALLOWED_HOSTS=127.0.0.1,localhost
-```
+4. **Run Migrations**
 
-5️⃣ **Run migrations**
 ```bash
 python manage.py migrate
 ```
 
-6️⃣ **Start the development server**
+5. **Run Seeder**
+
+```bash
+python manage.py seed
+```
+
+6. **Start Development Server**
+
 ```bash
 python manage.py runserver
 ```
 
-> Swagger docs will be available at:
+## 📌 Notes
 
-```arduino
-http://127.0.0.1:8000/swagger/
-```
+- The seeder is primarily for development and testing — avoid using it in production since it creates dummy data.
 
-## 👥 Authors
-Ken Aule
+- Always ensure your database settings in `settings.py` are correct before running migrations or seeders.
+
+- You can customize the seed data in `seed.py` to better match your project needs — add more fields, generate more complex data, or seed related models.
+
+- This automatic data generation helps speed up frontend/backend integration and debugging without manual data entry.
+
+- The `.env` file, which contains sensitive information like the database URL, known hosts, and secret key, is **ignored by git** (not pushed to the repository) for security reasons. You will have to create it manually on your local environment.
+
+- You can generate a new Django secret key using this command:
+  ```bash
+  python3 -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+  ```
+- Here is a sample .env file structure:
+
+    ```env
+    SECRET_KEY=your_generated_secret_key_here
+    DEBUG=True
+    ALLOWED_HOSTS=localhost,127.0.0.1
+    DATABASE_URL=sqlite:///db.sqlite3
+    ```
