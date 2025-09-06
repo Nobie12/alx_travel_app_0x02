@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Listing, Booking, Review
+from django.contrib.auth.models import User
+
 
 class ListingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,8 +10,8 @@ class ListingSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 class BookingSerializer(serializers.ModelSerializer):
-    listing = serializers.ListingSerializer(read_only=True)
-    listing_id = serializersPrimaryKeyRelatedField(queryset=Listing.objects.all(), source='listing', write_only=True)
+    listing = ListingSerializer(read_only=True)
+    listing_id = serializers.PrimaryKeyRelatedField(queryset=Listing.objects.all(), source='listing', write_only=True)
 
     user = serializers.StringRelatedField(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
@@ -21,8 +23,8 @@ class BookingSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
 
-    listing = serializers.ListingSerializer(read_only=True)
-    listing_id = serializersPrimaryKeyRelatedField(queryset=Listing.objects.all(), source='listing', write_only=True)
+    listing = ListingSerializer(read_only=True)
+    listing_id = serializers.PrimaryKeyRelatedField(queryset=Listing.objects.all(), source='listing', write_only=True)
 
     user = serializers.StringRelatedField(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
