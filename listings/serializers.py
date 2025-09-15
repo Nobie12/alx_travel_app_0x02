@@ -33,3 +33,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = '__all__'
         read_only_fields = ['id', 'listing', 'user', 'created_at']
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = "__all__"

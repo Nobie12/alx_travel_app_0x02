@@ -1,7 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import AbstractUser
+from uuid import uuid4
 
+class User(AbstractUser):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    phone_number = models.CharField(max_length=20, blank=True)
+
+    def __str__(self):
+        return self.username
 
 class Listing(models.Model):
     """Represents a travel listing."""
@@ -41,3 +49,23 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.rating} by {self.user.username} on {self.listing.title}"
+
+class Payment(models.Model):
+    class PaymentStatus(models.TextChoices):
+        PENDING = "P", "Pending"
+        SUCCESS = "S", "success"
+        FAILED = "F", "failed"
+    
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    payment_status = models.CharField(max_length=200, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
+    amount = models.IntegerField()
+    transaction_id = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # Foreign key
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.booking} - {self.payment_status} - {self.amount}"
